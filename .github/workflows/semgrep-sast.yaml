@@ -1,0 +1,34 @@
+# Name of this GitHub Actions workflow.
+# Note that this is not the best way to run semgrep in CI but it has been used for
+# demonstration purposes only
+name: Run Semgrep SAST
+
+on:
+  # Scan on-demand through GitHub Actions interface:
+  workflow_dispatch: {}
+
+jobs:
+  semgrep:
+    # User-definable name of this GitHub Actions job:
+    name: semgrep/ci
+    # If you are self-hosting, change the following `runs-on` value: 
+    runs-on: ubuntu-latest
+
+    # Skip any PR created by dependabot to avoid permission issues:
+    if: (github.actor != 'dependabot[bot]')
+
+    steps:
+      # Fetch project source with GitHub Actions Checkout.
+      - uses: actions/checkout@v3
+      # Install aha for HTML output
+      - run: sudo apt-get update && sudo apt-get install -y aha
+      # Run Install and then run semgrep on the command line of GitHub runner.
+      - run: python3 -m pip install semgrep
+      - run: chmod +x *.sh
+      - run: ./run_semgrep.sh
+      # Upload artifacts to github actions
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: Semgrep SAST Output
+          path: semgrep_results*
