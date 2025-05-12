@@ -13,6 +13,8 @@ jobs:
     name: semgrep/ci
     # If you are self-hosting, change the following `runs-on` value: 
     runs-on: ubuntu-latest
+    permissions:
+      security-events: write
 
     # Skip any PR created by dependabot to avoid permission issues:
     if: (github.actor != 'dependabot[bot]')
@@ -32,3 +34,11 @@ jobs:
         with:
           name: Semgrep SAST Output
           path: semgrep_results*
+      
+      # Upload results to GitHub Code Scanning
+      - name: Upload SARIF to Code Scanning
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: semgrep_results/semgrep_results_reg.sarif
+          category: semgrep
+          wait-for-processing: true
