@@ -8,6 +8,8 @@ import static org.owasp.webgoat.container.assignments.AttackResultBuilder.failed
 import static org.owasp.webgoat.container.assignments.AttackResultBuilder.success;
 import static org.springframework.http.MediaType.ALL_VALUE;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import java.io.IOException;
@@ -73,7 +75,7 @@ public class StoredXssComments implements AssignmentEndpoint {
   @PostMapping("/CrossSiteScriptingStored/stored-xss")
   @ResponseBody
   public AttackResult createNewComment(
-      @RequestBody String commentStr, @CurrentUsername String username) {
+      @RequestBody String commentStr, @CurrentUsername String username) throws JsonParseException, JsonMappingException, IOException {
     Comment comment = parseJson(commentStr);
 
     List<Comment> comments = userComments.getOrDefault(username, new ArrayList<>());
@@ -82,6 +84,10 @@ public class StoredXssComments implements AssignmentEndpoint {
 
     comments.add(comment);
     userComments.put(username, comments);
+
+    ObjectMapper mapper = new ObjectMapper();
+    mapper.enableDefaultTyping();
+    Object obj = mapper.readValue(commentStr, Object.class);
 
     if (comment.getText().contains(phoneHomeString)) {
       return (success(this).feedback("xss-stored-comment-success").build());

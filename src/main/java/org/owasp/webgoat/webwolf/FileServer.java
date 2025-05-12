@@ -32,6 +32,14 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
+import java.io.*;
+import java.util.List;
+import javax.servlet.*;
+import org.apache.commons.fileupload.*;
+import org.apache.commons.fileupload.disk.*;
+import org.apache.commons.fileupload.servlet.*;
+import org.apache.commons.fileupload.MultipartStream;
+import java.nio.charset.StandardCharsets;
 
 /** Controller for uploading a file */
 @Controller
@@ -76,6 +84,12 @@ public class FileServer {
       Files.deleteIfExists(destinationFile);
       Files.copy(is, destinationFile);
     }
+
+    byte[] data = multipartFile.getBytes();
+    ByteArrayInputStream input = new ByteArrayInputStream(data);
+
+    MultipartStream multipartStream = new MultipartStream(input, data);
+
     log.debug("File saved to {}", new File(destinationDir, multipartFile.getOriginalFilename()));
 
     return new ModelAndView(

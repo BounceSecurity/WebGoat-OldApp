@@ -46,8 +46,7 @@ public class VulnerableComponentsLesson implements AssignmentEndpoint {
 
     try {
       if (null != contact) {
-        contact.getFirstName(); // trigger the example like
-        // https://x-stream.github.io/CVE-2013-7285.html
+        contact.getFirstName(); 
       }
       if (!(contact instanceof ContactImpl)) {
         return success(this).feedback("vulnerable-components.success").build();
