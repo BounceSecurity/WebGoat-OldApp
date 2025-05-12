@@ -28,7 +28,7 @@ jobs:
       - run: ./run_semgrep.sh
       # Upload artifacts to github actions
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: Semgrep SAST Output
           path: semgrep_results*
