@@ -22,6 +22,10 @@ import java.security.spec.RSAKeyGenParameterSpec;
 import java.util.Base64;
 import javax.xml.bind.DatatypeConverter;
 import lombok.extern.slf4j.Slf4j;
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEParameterSpec;
 
 @Slf4j
 public class CryptoUtil {
@@ -33,6 +37,52 @@ public class CryptoUtil {
     BigInteger.valueOf(257),
     BigInteger.valueOf(65537)
   };
+
+  private static byte[] salt = { (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+    (byte) 0x00, (byte) 0x00 };
+
+    /**
+     * Convenience method for encrypting a string.
+     * 
+     * @param str
+     *            Description of the Parameter
+     * @param pw
+     *            Description of the Parameter
+     * @return String the encrypted string.
+     */
+
+     public static synchronized String decryptString(String str, String pw)
+     {
+ 
+         try
+         {
+ 
+             PBEParameterSpec ps = new javax.crypto.spec.PBEParameterSpec(salt, 20);
+ 
+             SecretKeyFactory kf = SecretKeyFactory.getInstance("PBEWithMD5AndDES");
+ 
+             Cipher passwordDecryptCipher = Cipher.getInstance("PBEWithMD5AndDES/CBC/PKCS5Padding");
+ 
+             char[] pass = pw.toCharArray();
+ 
+             SecretKey k = kf.generateSecret(new javax.crypto.spec.PBEKeySpec(pass));
+ 
+             passwordDecryptCipher.init(Cipher.DECRYPT_MODE, k, ps);
+ 
+             byte[] dec = Base64.getDecoder().decode(str);
+ 
+             byte[] utf8 = passwordDecryptCipher.doFinal(dec);
+ 
+             return new String(utf8, "UTF-8");
+         }
+ 
+         catch (Exception e)
+         {
+ 
+             return ("This is not an encrypted string");
+         }
+ 
+     }
 
   public static KeyPair generateKeyPair()
       throws NoSuchAlgorithmException, InvalidAlgorithmParameterException {
